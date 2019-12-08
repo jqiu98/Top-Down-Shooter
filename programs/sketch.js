@@ -10,66 +10,86 @@ let GRAVITY = 1.3;
 
 let playerSprite;
 
+let gameStart;
+let settingMenu;
+
+let menu;
+
 
 function preload() {
-  playerTexture = loadImage('assets/ghost_walk0001.png');
-  tileTexture = loadImage('groundTile.png');
+    playerTexture = loadImage('assets/ghost_walk0001.png');
+    tileTexture = loadImage('groundTile.png');
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+    createCanvas(windowWidth, windowHeight);
 
-  gameLevels = []
-  gameLevels[0] = loadLevel(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL1_DATA, tileTexture);
-  currentLevel = gameLevels[0];
+    gameLevels = [];
+    gameLevels[0] = loadLevel(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL1_DATA, tileTexture);
+    currentLevel = gameLevels[0];
 
-  player = new Player(playerTexture);
+    gameStart = false;
+    settingMenu = false;
+
+    player = new Player(playerTexture);
+
+    menu = new MainMenu();
 }
 
 function draw() {
-  background(120);
+    background(120);
+    if (!gameStart) runMainMenu();
+    else runLevel();
+}
 
-  player.player.collide(currentLevel, UpdateGravity);
+function runMainMenu() {
+    menu.Display();
+    gameStart = menu.start;
+}
 
-  player.Run();
+function runLevel() {
+    player.player.collide(currentLevel, UpdateGravity);
 
-  camera.position.x = player.player.position.x;
-  camera.position.y = player.player.position.y;
+    player.Run();
 
-  player.player.debug = true;
+    camera.position.x = player.player.position.x;
+    camera.position.y = player.player.position.y;
 
-  if(mouseIsPressed)
-    camera.zoom = 0.1;
-  else
-    camera.zoom = 1;
+    player.player.debug = true;
 
-  drawSprites(currentLevel);
+    if(mouseIsPressed)
+            camera.zoom = 0.1;
+    else
+            camera.zoom = 1;
+
+    drawSprites(currentLevel);
+    player.Display();
 }
 
 function keyPressed() {
-  if (key == " ") {
-    player.Jump();
-  }
+    if (gameStart) {
+            if (key == " ") player.Jump();
+    }
 }
 
 function UpdateGravity() {
     if (player.player.touching.bottom) player.player.velocity.y = 0;
     if (player.player.touching.top) player.player.velocity.y = 0;
-  }
+}
 
 
 function loadLevel (levelWidth, levelHeight, levelData, mapTileTexture) {
-  let platforms = new Group();
+    let platforms = new Group();
 
-  for (let y = 0; y < levelHeight; y++) {
-      for (let x = 0; x < levelWidth; x++) {
-      index = y * levelWidth + x;
-      if (levelData[index] != 1) continue;
+    for (let y = 0; y < levelHeight; y++) {
+            for (let x = 0; x < levelWidth; x++) {
+                    index = y * levelWidth + x;
+                    if (levelData[index] != 1) continue;
 
-      let tile = createSprite(x*64, y*64);
-      tile.addImage(tileTexture);
-      platforms.add(tile);
+                    let tile = createSprite(x*64, y*64);
+                    tile.addImage(tileTexture);
+                    platforms.add(tile);
+            }
     }
-  }
-  return platforms;
+    return platforms;
 }

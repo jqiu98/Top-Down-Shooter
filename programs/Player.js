@@ -14,7 +14,6 @@ class Player {
 	Run() {
 		this.ProcessInput();
 		this.Update();
-		this.Display();
 	}
 
 	ProcessInput() {
