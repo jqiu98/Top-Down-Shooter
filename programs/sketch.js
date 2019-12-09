@@ -57,7 +57,7 @@ function setup() {
     createCanvas(windowWidth-4, windowHeight-4);
     rectMode(CENTER);
     textAlign(CENTER, CENTER);
-
+    angleMode(DEGREES);
 
     gameLevels = [];
     gameLevels[0] = loadLevel(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL1_DATA, tileTexture);
@@ -107,22 +107,20 @@ function runScene() {
 
 
 function runLevel() {
-    player.player.collide(currentLevel, UpdateGravity);
+    drawSprites(currentLevel);
+    player.player.collide(currentLevel);
 
     player.Run();
 
     camera.position.x = player.player.position.x;
     camera.position.y = player.player.position.y;
-
-    drawSprites(currentLevel);
-    player.Display();
 }
 
 
-function UpdateGravity() {
-    if (player.player.touching.bottom) player.player.velocity.y = 0;
-    if (player.player.touching.top) player.player.velocity.y = 0;
-}
+// function UpdateGravity() {
+//     if (player.player.touching.bottom) player.player.velocity.y = 0;
+//     if (player.player.touching.top) player.player.velocity.y = 0;
+// }
 
 
 function loadLevel (levelWidth, levelHeight, levelData, mapTileTexture) {
