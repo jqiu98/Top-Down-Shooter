@@ -4,7 +4,7 @@ class MainMenu {
 		this.storyMode.shapeColor = color(0, 255, 0);
 
 		this.versusMode = createSprite(width/2, height/4 + 100, 200, 50);
-		this.versusMode.shapeColor = color(144);
+		this.versusMode.shapeColor = color(180);
 
 		this.start = false;
 		this.options = [this.storyMode, this.versusMode];
@@ -47,8 +47,8 @@ class MainMenu {
 	}
 
 	ProcessInputs() {
-		if (keyWentDown(UP_ARROW)) this.UpdateSelect(1);
-		else if (keyWentDown(DOWN_ARROW)) this.UpdateSelect(-1);
+		if (keyWentDown("w")) this.UpdateSelect(1);
+		else if (keyWentDown("s")) this.UpdateSelect(-1);
 		else if (keyWentDown(ENTER)) this.OptionSelect();
 	}
 
@@ -61,7 +61,7 @@ class MainMenu {
 	}
 
 	OptionOff(option) {
-		option.shapeColor = color(144);
+		option.shapeColor = color(180);
 	}
 
 	OptionOn(option) {

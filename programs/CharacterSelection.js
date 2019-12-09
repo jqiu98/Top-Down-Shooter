@@ -93,7 +93,7 @@ class CharacterSelection {
 		fill(0, 255, 0);
 		rect(width * 5/8, height * 3/5, pW, pH);
 
-		fill(200);
+		fill(220);
 		rect(width * 7/8, height * 3/5, pW, pH);
 		pop();
 	}
@@ -101,39 +101,50 @@ class CharacterSelection {
 	DrawTitle() {
 		push();
 		textSize(40);
-		push();
 		textStyle(BOLD);
 		text("SELECT YOUR CLASS", width/2, height/8, width, 40);
-		pop();
 
 		textSize(20);
+		textStyle(NORMAL);
 		text("Use a & d to pick", width/2, height/8 + 40, width, 20);
 		text("Press ENTER to select", width/2, height/8 + 65, width, 20);
 		pop();
 	}
 
 	DrawClass() {
+
+		let x = this.character.position.x;
+		let y = this.character.position.y;
+		let h = this.scale * 462 / 2;
+		let w = this.scale * 500;
+		let msg = "(Psst..Press the arrow keys!)"
+
 		push();
 		textSize(16);
 		textStyle(BOLD);
-		text(this.selClass, this.character.position.x, this.character.position.y - 50, textWidth(this.selClass), 50)
+
+		text(msg, x, y-h-20, w, 16);
+
+		fill('#ff8000');
+		text(this.selClass, x, y - 50, textWidth(this.selClass), 16);
+
+		fill(0);
 		pop();
 	}
 
 	DrawSelect() {
 		let x = this.allClasses[this.classIndex].position.x;
 		let y = this.allClasses[this.classIndex].position.y;
-		let w = this.scale * 500 / 2;
 		let h = this.scale * 462 / 2;
 
 		push();
-		fill('#ff8000');
+		fill("#ff8000");
 		strokeWeight(2.5);
 		triangle(x, y-h-20, x-35, y-h-55, x+35, y-h-55);
 
 		textStyle(BOLD);
 		textSize(20);
-		text("SELECT", x+5, y-h-70, 70, 20);
+		text("SELECT", x+5, y-h-62.5, 70, 20);
 		pop();
 	}
 
