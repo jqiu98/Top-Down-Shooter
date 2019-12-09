@@ -1,3 +1,5 @@
+let pInst = this;
+
 class Player {
 	constructor(anims) {
 		this.player = createSprite(64, 7*64);
@@ -9,67 +11,77 @@ class Player {
 
 		this.player.scale = 1.2;
 
+		this.player.collider = this.player.getBoundingBox();
+
 		this.health = 100;
 		this.speed = 1;
-		this.jump = -18;
-		this.doubleJump = true;
+		// this.jump = -18;
+		// this.doubleJump = true;
 	}
 
 	Run() {
 		this.ProcessInputs();
 		this.Update();
+		this.Display();
 	}
 
 	ProcessInputs() {
 		this.player.velocity.x = 0;
+		this.player.velocity.y = 0;
+
 
 		if (keyDown(LEFT_ARROW)) {
 			this.player.velocity.x = -5;
-			// this.player.mirrorX(-1);
 			this.player.changeAnimation('walk_left');
 		}
 
-		else if (keyDown(RIGHT_ARROW)) {
+		if (keyDown(RIGHT_ARROW)) {
 			this.player.velocity.x = 5;
-			// this.player.mirrorX(1);
 			this.player.changeAnimation('walk_right');
 		}
 
-		else if(keyDown(UP_ARROW)) {
+		if(keyDown(UP_ARROW)) {
+			this.player.velocity.y = -5;
 			this.player.changeAnimation('walk_up');
 		}
 
-		else if (keyDown(DOWN_ARROW)) {
-			this.player.changeAnimation('walk_down');
+		if (keyDown(DOWN_ARROW)) {
+			this.player.velocity.y = 5;
+			if (this.player.velocity.x === 0) this.player.changeAnimation('walk_down');
 		}
 
-		else {
+		if (this.player.velocity.mag() === 0) {
 			this.player.animation.changeFrame(1);
 		}
-
-		if (keyWentDown(" ")) {
-			this.Jump();
+		else {
+			this.player.velocity.limit(5);
 		}
 
 	    if(mouseIsPressed) camera.zoom = 0.1;
 	    else camera.zoom = 1;
 	}
 
-	Jump() {
-		if (this.player.touching.bottom) this.player.velocity.y = this.jump;
-		else if (this.doubleJump) {
-			this.player.velocity.y = this.jump;
-			this.doubleJump = false;
-		}
-	}
+
+	// Jump() {
+	// 	if (this.player.touching.bottom) this.player.velocity.y = this.jump;
+	// 	else if (this.doubleJump) {
+	// 		this.player.velocity.y = this.jump;
+	// 		this.doubleJump = false;
+	// 	}
+	// }
 
 	Update() {
-		this.player.velocity.y += GRAVITY;
-		if (this.player.touching.bottom) this.doubleJump = true;
+		if (this.player.velocity.x !== 0 && this.player.velocity.y !== 0) {
+			this.player.rotation = -abs(this.player.velocity.heading()) + 90;
+		}
+		else {
+			this.player.rotation = 0;
+		}
 	}
 
 	Display() {
 		drawSprite(this.player);
+
 		push();
 		rectMode(CORNER);
 		stroke(0);
