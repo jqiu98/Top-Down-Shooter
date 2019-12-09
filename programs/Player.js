@@ -1,9 +1,13 @@
 class Player {
-	constructor() {
+	constructor(anims) {
 		this.player = createSprite(64, 7*64);
-		this.player.addImage('standing', playerTexture);
-		this.player.addAnimation('walking', 'assets/ghost_walk0001.png', 'assets/ghost_walk0004.png');
-		this.player.scale = 0.50;
+		
+		this.player.addAnimation('walk_down', anims[0]);
+		this.player.addAnimation('walk_left', anims[1]);
+		this.player.addAnimation('walk_right', anims[2]);
+		this.player.addAnimation('walk_up', anims[3]);
+
+		this.player.scale = 1.2;
 
 		this.health = 100;
 		this.speed = 1;
@@ -12,25 +16,43 @@ class Player {
 	}
 
 	Run() {
-		this.ProcessInput();
+		this.ProcessInputs();
 		this.Update();
 	}
 
-	ProcessInput() {
+	ProcessInputs() {
 		this.player.velocity.x = 0;
-		this.player.changeAnimation('standing');
 
-		if (keyIsDown(LEFT_ARROW)) {
+		if (keyDown(LEFT_ARROW)) {
 			this.player.velocity.x = -5;
-			this.player.mirrorX(-1);
-			this.player.changeAnimation('walking');
+			// this.player.mirrorX(-1);
+			this.player.changeAnimation('walk_left');
 		}
 
-		if (keyIsDown(RIGHT_ARROW)) {
+		else if (keyDown(RIGHT_ARROW)) {
 			this.player.velocity.x = 5;
-			this.player.mirrorX(1);
-			this.player.changeAnimation('walking');
+			// this.player.mirrorX(1);
+			this.player.changeAnimation('walk_right');
 		}
+
+		else if(keyDown(UP_ARROW)) {
+			this.player.changeAnimation('walk_up');
+		}
+
+		else if (keyDown(DOWN_ARROW)) {
+			this.player.changeAnimation('walk_down');
+		}
+
+		else {
+			this.player.animation.changeFrame(1);
+		}
+
+		if (keyWentDown(" ")) {
+			this.Jump();
+		}
+
+	    if(mouseIsPressed) camera.zoom = 0.1;
+	    else camera.zoom = 1;
 	}
 
 	Jump() {
@@ -48,7 +70,10 @@ class Player {
 
 	Display() {
 		drawSprite(this.player);
+		push();
+		rectMode(CORNER);
 		stroke(0);
+		noFill();
 		rect(this.player.position.x-32, this.player.position.y-42.5, 64, 4, 30);
 
 		let currHealth = map(this.health, 0, 100, 0, 64);
