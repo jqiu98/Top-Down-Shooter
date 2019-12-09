@@ -3,7 +3,6 @@ let gameLevels;
 let currentLevel;
 
 let player;
-let playerTexture;
 let tileTexture;
 
 let GRAVITY = 1.3;
@@ -14,15 +13,51 @@ let gameStart;
 let settingMenu;
 
 let menu;
+let selection;
 
+let warrior, mage, archer;
+let warriorPic, magePic, archerPic;
+
+let scenes;
+let currentScene;
+
+let allClassLabels;
+let allAnimations;
+
+let selectedClassLabel;
+let selectedClassAnim;
 
 function preload() {
-    playerTexture = loadImage('assets/ghost_walk0001.png');
     tileTexture = loadImage('groundTile.png');
+
+    warrior = [ 
+                loadAnimation('warrior/warrior_down001.png', 'warrior/warrior_down003.png'),
+                loadAnimation('warrior/warrior_left001.png', 'warrior/warrior_left003.png'),
+                loadAnimation('warrior/warrior_right001.png', 'warrior/warrior_right003.png'),
+                loadAnimation('warrior/warrior_up001.png', 'warrior/warrior_up003.png')]
+
+    mage = [ 
+                loadAnimation('mage/mage_down001.png', 'mage/mage_down003.png'),
+                loadAnimation('mage/mage_left001.png', 'mage/mage_left003.png'),
+                loadAnimation('mage/mage_right001.png', 'mage/mage_right003.png'),
+                loadAnimation('mage/mage_up001.png', 'mage/mage_up003.png')]
+
+    archer = [ 
+                loadAnimation('archer/archer_down001.png', 'archer/archer_down003.png'),
+                loadAnimation('archer/archer_left001.png', 'archer/archer_left003.png'),
+                loadAnimation('archer/archer_right001.png', 'archer/archer_right003.png'),
+                loadAnimation('archer/archer_up001.png', 'archer/archer_up003.png')]
+
+    warriorPic = loadImage('warrior/warrior_pic.png');
+    magePic = loadImage('mage/mage_pic.png');
+    archerPic = loadImage('archer/archer_pic.png');
 }
 
 function setup() {
-    createCanvas(windowWidth, windowHeight);
+    createCanvas(windowWidth-4, windowHeight-4);
+    rectMode(CENTER);
+    textAlign(CENTER, CENTER);
+
 
     gameLevels = [];
     gameLevels[0] = loadLevel(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL1_DATA, tileTexture);
@@ -31,21 +66,45 @@ function setup() {
     gameStart = false;
     settingMenu = false;
 
-    player = new Player(playerTexture);
+    // player = new Player(warrior);
+
+    allClassLabels = ['warrior', 'mage', 'archer'];
+    allAnimations = [warrior, mage, archer];
 
     menu = new MainMenu();
+    selection = new CharacterSelection();
+
+    scenes = {};
+    scenes['menu'] = menu;
+    scenes['selection'] = selection;
+    currentScene = 'menu';
 }
 
 function draw() {
-    background(120);
-    if (!gameStart) runMainMenu();
-    else runLevel();
+    if (gameStart) background(144);
+    else background(255);
+
+    if (gameStart) runLevel();
+    else if (currentScene === "start") InitializePlayer();
+    else runScene();
+
+    push();
+    noFill();
+    strokeWeight(25);
+    rect(width/2, height/2, width+5, height+5);
+    pop();
+
 }
 
-function runMainMenu() {
-    menu.Display();
-    gameStart = menu.start;
+function InitializePlayer() {
+    player = new Player(selectedClassAnim);
+    gameStart = true;
 }
+
+function runScene() {
+    scenes[currentScene].Run();
+}
+
 
 function runLevel() {
     player.player.collide(currentLevel, UpdateGravity);
@@ -55,22 +114,10 @@ function runLevel() {
     camera.position.x = player.player.position.x;
     camera.position.y = player.player.position.y;
 
-    player.player.debug = true;
-
-    if(mouseIsPressed)
-            camera.zoom = 0.1;
-    else
-            camera.zoom = 1;
-
     drawSprites(currentLevel);
     player.Display();
 }
 
-function keyPressed() {
-    if (gameStart) {
-            if (key == " ") player.Jump();
-    }
-}
 
 function UpdateGravity() {
     if (player.player.touching.bottom) player.player.velocity.y = 0;
