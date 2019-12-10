@@ -62,7 +62,6 @@ class Robot extends Player {
 	constructor(anims, projectileTexture, x = 64, y = 7*64) {
 		super(anims, projectileTexture, 3, x, y);
 
-
 		this.MAXPROJECTILE = 7;
 		this.shootThreshold = 150;
 
@@ -72,6 +71,8 @@ class Robot extends Player {
 	InitializeProjectiles() {
 		for (let i = 0; i < this.MAXPROJECTILE; i++) {
 			this.projectiles.push(new PLaser(this.projectileTexture));
+			this.projectiles[i].AddToGroup(this.projectileGroup);
+
 		}
 	}
 }
@@ -90,6 +91,7 @@ class Mage extends Player {
 	InitializeProjectiles() {
 		for (let i = 0; i < this.MAXPROJECTILE; i++) {
 			this.projectiles.push(new PMagic(this.projectileTexture));
+			this.projectiles[i].AddToGroup(this.projectileGroup);
 
 		}
 	}
@@ -110,6 +112,8 @@ class Archer extends Player {
 	InitializeProjectiles() {
 		for (let i = 0; i < this.MAXPROJECTILE; i++) {
 			this.projectiles.push(new PArrow(this.projectileTexture));
+			this.projectiles[i].AddToGroup(this.projectileGroup);
+
 		}
 	}
 }

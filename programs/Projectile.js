@@ -4,20 +4,37 @@ class Projectile {
 		this.speed = 6;
 		this.isActive = false;
 		this.life = 40;
+		this.velocity = createVector(0,0);
 
 		/* @private */
-		this.item = createSprite(0,0);
+		this.item = createSprite(3000,3000);
 		this.item.addImage(texture);
-		this.item.debug = true;
+		this.item.setDefaultCollider();
 	}
 
-	getWidth() {
+	AddToGroup(group) {
+		this.item.addToGroup(group);
+	}
+
+	// ResetLife() {
+	// 	this.item.life = -1;
+	// }
+
+	GetLife() {
+		return this.item.life;
+	}
+
+	GetWidth() {
 		return this.item.width;
 	}
 
 	SetAlive() {
 		this.isActive = true;
 		this.item.life = this.life;
+		this.item.velocity.x = this.velocity.x;
+		this.item.velocity.y = this.velocity.y;
+		this.item.velocity.setMag(this.speed);
+		this.item.rotation = this.item.velocity.heading();
 	}
 
 	SetCollider(x, y, radius) {
@@ -30,10 +47,9 @@ class Projectile {
 	}
 
 	UpdateVelocity(x, y) {
-		this.item.velocity.x = x;
-		this.item.velocity.y = y;
-		this.item.velocity.setMag(this.speed);
-		this.item.rotation = this.item.velocity.heading();
+		this.velocity.x = x;
+		this.velocity.y = y;
+
 	}
 
 
@@ -43,7 +59,7 @@ class Projectile {
 	}
 
 	TrackLife() {
-		if (this.item.life === 1) {
+		if (this.item.life < 2 && this.isActive) {
 			this.isActive = false;
 			this.item.life = -1;
 		}
@@ -79,7 +95,7 @@ class PLaser extends Projectile {
 	}
 
 	SetCollider(x, y, radius) {
-		this.item.setCollider("circle", x, y, radius, radius);
+		this.item.setCollider("circle", x, y, radius+2);
 	}
 }
 
@@ -94,6 +110,6 @@ class PArrow extends Projectile {
 	}
 
 	setCollider(x, y, radius) {
-		this.item.setCollider("circle", x, y, radius, radius);
+		this.item.setCollider("circle", x, y, radius);
 	}
 }

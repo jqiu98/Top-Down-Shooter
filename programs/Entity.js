@@ -12,7 +12,7 @@ class Entity {
 		this.entity.collider = this.entity.getBoundingBox();
 
 		this.health = 100;
-		this.speed = 7;
+		this.speed = 9;
 		this.damage = 5;
 
 		this.pVelocity = createVector(0,5);
@@ -20,19 +20,10 @@ class Entity {
 
 		this.projectileTexture = projectileTexture;
 		this.projectiles = [];
+		this.projectileGroup = new Group();
 		this.projectileIndex = 0;
 		this.MAXPROJECTILE = 3;
 		this.projRadius = projRadius;
-
-
-
-		this.InitializeProjectiles();
-	}
-
-	InitializeProjectiles() {
-		for (let i = 0; i < this.MAXPROJECTILE; i++) {
-			this.projectiles.push(new PMagic(this.projectileTexture));
-		}
 	}
 
 	Run() {
@@ -45,17 +36,19 @@ class Entity {
 	Shoot() {
 		let aProjectile = this.projectiles[this.projectileIndex];
 		if (!aProjectile.isActive) {
-			aProjectile.SetAlive();
-			let data = this.GetAimPosition(aProjectile.getWidth()/2 - this.projRadius);
+			let data = this.GetAimPosition(aProjectile.GetWidth()/2 - this.projRadius);
 			let aim = data[0];
 			let offset = data[1];
 
 			aProjectile.UpdatePosition(this.entity.position.x + aim.x, this.entity.position.y + aim.y);
 			aProjectile.UpdateVelocity(this.pVelocity.x, this.pVelocity.y);
-			aProjectile.SetCollider(offset.x, offset.y);
+			aProjectile.SetCollider(offset.x, offset.y, this.projRadius);
 
-			this.projectileIndex = (this.projectileIndex + 1) % this.MAXPROJECTILE;
+			aProjectile.SetAlive();
 		}
+		else if (aProjectile.GetLife() === aProjectile.life) aProjectile.isActive = false;
+		this.projectileIndex = (this.projectileIndex + 1) % this.MAXPROJECTILE;
+
 	}
 
 	GetAimPosition(projHalfWidth) {
