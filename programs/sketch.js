@@ -3,7 +3,8 @@ let gameLevels;
 let currentLevel;
 
 let player;
-let tileTexture;
+
+let tileTexture, floor1, floor2, wall1, wall2;
 
 let GRAVITY = 1.3;
 
@@ -15,29 +16,33 @@ let settingMenu;
 let menu;
 let selection;
 
-let warrior, mage, archer;
-let warriorPic, magePic, archerPic;
+let robot, mage, archer;
+let robotPic, magePic, archerPic;
 
 let scenes;
 let currentScene;
 
 let allClassLabels;
 let allAnimations;
+let allProjectiles;
 
-let selectedClassLabel;
-let selectedClassAnim;
-
-let laser;
+let laser, magic, arrow;
 
 
 function preload() {
-    tileTexture = loadImage('groundTile.png');
+    tileTexture = loadImage('dirt.png');
+    floor1 = loadImage('floor1.png');
+    floor2 = loadImage('floor1.png');
 
-    warrior = [ 
-                loadAnimation('warrior/warrior_down001.png', 'warrior/warrior_down003.png'),
-                loadAnimation('warrior/warrior_left001.png', 'warrior/warrior_left003.png'),
-                loadAnimation('warrior/warrior_right001.png', 'warrior/warrior_right003.png'),
-                loadAnimation('warrior/warrior_up001.png', 'warrior/warrior_up003.png')]
+    wall1 = loadImage('wall1.png');
+    wall2 = loadImage('wall1.png');
+
+
+    robot = [ 
+                loadAnimation('robot/robot_down001.png', 'robot/robot_down003.png'),
+                loadAnimation('robot/robot_left001.png', 'robot/robot_left003.png'),
+                loadAnimation('robot/robot_right001.png', 'robot/robot_right003.png'),
+                loadAnimation('robot/robot_up001.png', 'robot/robot_up003.png')]
 
     mage = [ 
                 loadAnimation('mage/mage_down001.png', 'mage/mage_down003.png'),
@@ -51,11 +56,13 @@ function preload() {
                 loadAnimation('archer/archer_right001.png', 'archer/archer_right003.png'),
                 loadAnimation('archer/archer_up001.png', 'archer/archer_up003.png')]
 
-    warriorPic = loadImage('warrior/warrior_pic.png');
+    robotPic = loadImage('robot/robot_pic.png');
     magePic = loadImage('mage/mage_pic.png');
     archerPic = loadImage('archer/archer_pic.png');
 
     laser = loadImage('laser.png');
+    magic = loadImage('magic.png');
+    arrow = loadImage('arrow3.png');
 }
 
 function setup() {
@@ -65,16 +72,17 @@ function setup() {
     angleMode(DEGREES);
 
     gameLevels = [];
-    gameLevels[0] = loadLevel(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL1_DATA, tileTexture);
+    gameLevels[0] = loadLevel(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL1_DATA);
     currentLevel = gameLevels[0];
 
     gameStart = false;
     settingMenu = false;
 
-    // player = new Player(warrior);
+    // player = new Player(robot);
 
-    allClassLabels = ['warrior', 'mage', 'archer'];
-    allAnimations = [warrior, mage, archer];
+    allClassLabels = ['robot', 'mage', 'archer'];
+    allAnimations = [robot, mage, archer];
+    allProjectiles = [laser, magic, arrow];
 
     menu = new MainMenu();
     selection = new CharacterSelection();
@@ -102,7 +110,9 @@ function draw() {
 }
 
 function InitializePlayer() {
-    player = new Player(selectedClassAnim, laser, 64, 7*64);
+    // player = new Player(selectedClassAnim, magic, 64, 7*64);
+    player.entity.position.x = 64;
+    player.entity.position.y = 7*64;
     gameStart = true;
 }
 
@@ -122,21 +132,16 @@ function runLevel() {
 }
 
 
-// function UpdateGravity() {
-//     if (player.entity.touching.bottom) player.entity.velocity.y = 0;
-//     if (player.entity.touching.top) player.entity.velocity.y = 0;
-// }
-
-
-function loadLevel (levelWidth, levelHeight, levelData, mapTileTexture) {
+function loadLevel (levelWidth, levelHeight, levelData) {
     let platforms = new Group();
 
     for (let y = 0; y < levelHeight; y++) {
             for (let x = 0; x < levelWidth; x++) {
                     index = y * levelWidth + x;
-                    if (levelData[index] != 1) continue;
+                    if (levelData[index] === 0) continue;
 
                     let tile = createSprite(x*64, y*64);
+                    
                     tile.addImage(tileTexture);
                     platforms.add(tile);
             }

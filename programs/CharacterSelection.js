@@ -2,9 +2,9 @@ class CharacterSelection {
 	constructor() {
 		this.scale = 0.6;
 
-		this.warrior = createSprite(width * 1/8, height * 3/5);
-		this.warrior.addImage(warriorPic);
-		this.warrior.scale = this.scale;
+		this.robot = createSprite(width * 1/8, height * 3/5);
+		this.robot.addImage(robotPic);
+		this.robot.scale = this.scale;
 
 		this.mage = createSprite(width * 3/8, height * 3/5);
 		this.mage.addImage(magePic);
@@ -18,11 +18,11 @@ class CharacterSelection {
 		this.character.scale = 1.1;
 
 
-		this.allClasses = [this.warrior, this.mage, this.archer];
-		this.selClass = 'warrior';
+		this.allClasses = [this.robot, this.mage, this.archer];
+		this.selClass = 'robot';
 		this.classIndex = 0;
 
-		let allAnims = [warrior, mage, archer];
+		let allAnims = [robot, mage, archer];
 
 		for (let i = 0; i < 3; i++) {
 			this.character.addAnimation(allClassLabels[i] + '_walk_down', allAnimations[i][0]);
@@ -73,8 +73,21 @@ class CharacterSelection {
 
 	classSelect() {
 		currentScene = "start";
-		selectedClassLabel = this.selClass;
-		selectedClassAnim = allAnimations[this.classIndex];
+
+		let classAnim = allAnimations[this.classIndex];
+		let classProjectile = allProjectiles[this.classIndex];
+
+		switch (this.selClass) {
+			case "robot":
+				player = new Robot(classAnim, classProjectile, 0, 0);
+				break;
+			case "mage":
+				player = new Mage(classAnim, classProjectile, 0, 0);
+				break;
+			case "archer":
+				player = new Archer(classAnim, classProjectile, 0, 0);
+				break;
+		}
 	}
 
 	DrawBG() {
@@ -151,7 +164,7 @@ class CharacterSelection {
 
 	Display() {
 		this.DrawBG();
-		drawSprite(this.warrior);
+		drawSprite(this.robot);
 		drawSprite(this.mage);
 		drawSprite(this.archer);
 

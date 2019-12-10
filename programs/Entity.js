@@ -1,5 +1,5 @@
 class Entity {
-	constructor(anims, projectileTexture, x = 64, y = 7*64) {
+	constructor(anims, projectileTexture, projRadius, x = 64, y = 7*64) {
 		this.entity = createSprite(x, y);
 		
 		this.entity.addAnimation('walk_down', anims[0]);
@@ -12,7 +12,8 @@ class Entity {
 		this.entity.collider = this.entity.getBoundingBox();
 
 		this.health = 100;
-		this.speed = 5;
+		this.speed = 7;
+		this.damage = 5;
 
 		this.pVelocity = createVector(0,5);
 		this.pRotation = 0;
@@ -20,7 +21,8 @@ class Entity {
 		this.projectileTexture = projectileTexture;
 		this.projectiles = [];
 		this.projectileIndex = 0;
-		this.MAXPROJECTILE = 20;
+		this.MAXPROJECTILE = 3;
+		this.projRadius = projRadius;
 
 
 
@@ -29,7 +31,7 @@ class Entity {
 
 	InitializeProjectiles() {
 		for (let i = 0; i < this.MAXPROJECTILE; i++) {
-			this.projectiles.push(new Projectile(this.projectileTexture));
+			this.projectiles.push(new PMagic(this.projectileTexture));
 		}
 	}
 
@@ -44,7 +46,7 @@ class Entity {
 		let aProjectile = this.projectiles[this.projectileIndex];
 		if (!aProjectile.isActive) {
 			aProjectile.SetAlive();
-			let data = this.GetAimPosition(aProjectile.getWidth()/2 - 3);
+			let data = this.GetAimPosition(aProjectile.getWidth()/2 - this.projRadius);
 			let aim = data[0];
 			let offset = data[1];
 

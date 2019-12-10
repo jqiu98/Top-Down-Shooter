@@ -1,6 +1,9 @@
 class Player extends Entity {
-	constructor(anims, projectileTexture, x = 64, y = 7*64) {
-		super(anims, projectileTexture, x, y);
+	constructor(anims, projectileTexture, projRadius, x = 64, y = 7*64) {
+		super(anims, projectileTexture, projRadius, x, y);
+
+		this.lastShot = 0;
+		this.shootThreshold;
 	}
 
 	Run() {
@@ -40,9 +43,77 @@ class Player extends Entity {
 			this.entity.velocity.limit(this.speed);
 		}
 
-		if (keyWentDown(" ")) super.Shoot();
+		if (keyDown(SHIFT)) this.Shoot();
 
 	    if(mouseIsPressed) camera.zoom = 0.1;
-	    else camera.zoom = 1;
+	    else camera.zoom = 0.5;
+	}
+
+	Shoot() {
+		let currShot = millis();
+		if (currShot - this.lastShot > this.shootThreshold) {
+			super.Shoot();
+			this.lastShot = currShot;
+		}
 	}
 }
+
+class Robot extends Player {
+	constructor(anims, projectileTexture, x = 64, y = 7*64) {
+		super(anims, projectileTexture, 3, x, y);
+
+
+		this.MAXPROJECTILE = 7;
+		this.shootThreshold = 150;
+
+		this.InitializeProjectiles();
+	}
+
+	InitializeProjectiles() {
+		for (let i = 0; i < this.MAXPROJECTILE; i++) {
+			this.projectiles.push(new PLaser(this.projectileTexture));
+		}
+	}
+}
+
+class Mage extends Player {
+	constructor(anims, projectileTexture, x = 64, y = 7*64) {
+		super(anims, projectileTexture, 0, x, y);
+
+		this.MAXPROJECTILE = 5;
+		this.shootThreshold = 300;
+
+		this.InitializeProjectiles();
+
+	}
+
+	InitializeProjectiles() {
+		for (let i = 0; i < this.MAXPROJECTILE; i++) {
+			this.projectiles.push(new PMagic(this.projectileTexture));
+
+		}
+	}
+}
+
+
+class Archer extends Player {
+	constructor(anims, projectileTexture, x = 64, y = 7*64) {
+		super(anims, projectileTexture, 1, x, y);
+
+		this.MAXPROJECTILE = 4;
+		this.shootThreshold = 50;
+
+		this.InitializeProjectiles();
+
+	}
+
+	InitializeProjectiles() {
+		for (let i = 0; i < this.MAXPROJECTILE; i++) {
+			this.projectiles.push(new PArrow(this.projectileTexture));
+		}
+	}
+}
+
+
+
+

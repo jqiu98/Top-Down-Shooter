@@ -1,8 +1,9 @@
 class Projectile {
 	constructor(texture) {
 		this.damage = 5;
-		this.speed = 10;
+		this.speed = 6;
 		this.isActive = false;
+		this.life = 40;
 
 		/* @private */
 		this.item = createSprite(0,0);
@@ -16,10 +17,10 @@ class Projectile {
 
 	SetAlive() {
 		this.isActive = true;
-		this.item.life = 40;
+		this.item.life = this.life;
 	}
 
-	SetCollider(x, y) {
+	SetCollider(x, y, radius) {
 		this.item.setCollider("circle", x, y, 3, 3);
 	}
 
@@ -50,5 +51,49 @@ class Projectile {
 
 	Display() {
 		drawSprite(this.item);
+	}
+}
+
+
+class PMagic extends Projectile {
+	constructor(texture) {
+		super(texture);
+
+		this.damage = 30;
+		this.speed = 12;
+		this.life = 110;
+	}
+
+	SetCollider(x, y, radius) {
+		this.item.setCollider("circle");
+	}
+}
+
+class PLaser extends Projectile {
+	constructor(texture) {
+		super(texture);
+
+		this.damage = 15;
+		this.speed = 25;
+		this.life = 56;
+	}
+
+	SetCollider(x, y, radius) {
+		this.item.setCollider("circle", x, y, radius, radius);
+	}
+}
+
+
+class PArrow extends Projectile {
+	constructor(texture) {
+		super(texture);
+
+		this.damage = 8;
+		this.speed = 25;
+		this.life = 47;
+	}
+
+	setCollider(x, y, radius) {
+		this.item.setCollider("circle", x, y, radius, radius);
 	}
 }
