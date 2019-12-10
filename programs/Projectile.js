@@ -1,27 +1,20 @@
 class Projectile {
 	constructor(texture) {
-		this.damage = 5;
 		this.speed = 6;
 		this.isActive = false;
-		this.life = 40;
+		this.maxLife = 40;
+		this.life = 0;
 		this.velocity = createVector(0,0);
 
 		/* @private */
 		this.item = createSprite(3000,3000);
 		this.item.addImage(texture);
 		this.item.setDefaultCollider();
+		this.item.damage = 5;
 	}
 
 	AddToGroup(group) {
 		this.item.addToGroup(group);
-	}
-
-	// ResetLife() {
-	// 	this.item.life = -1;
-	// }
-
-	GetLife() {
-		return this.item.life;
 	}
 
 	GetWidth() {
@@ -30,7 +23,9 @@ class Projectile {
 
 	SetAlive() {
 		this.isActive = true;
-		this.item.life = this.life;
+		this.item.deactivate = false;
+		this.life = this.maxLife;
+
 		this.item.velocity.x = this.velocity.x;
 		this.item.velocity.y = this.velocity.y;
 		this.item.velocity.setMag(this.speed);
@@ -49,9 +44,7 @@ class Projectile {
 	UpdateVelocity(x, y) {
 		this.velocity.x = x;
 		this.velocity.y = y;
-
 	}
-
 
 	Run() {
 		this.TrackLife();
@@ -59,9 +52,8 @@ class Projectile {
 	}
 
 	TrackLife() {
-		if (this.item.life < 2 && this.isActive) {
+		if (this.life-- === 1 || this.item.deactivate) {
 			this.isActive = false;
-			this.item.life = -1;
 		}
 	}
 
@@ -75,9 +67,11 @@ class PMagic extends Projectile {
 	constructor(texture) {
 		super(texture);
 
-		this.damage = 30;
 		this.speed = 12;
-		this.life = 110;
+		this.maxLife = 110;
+
+		this.item.damage = 30;
+
 	}
 
 	SetCollider(x, y, radius) {
@@ -89,9 +83,10 @@ class PLaser extends Projectile {
 	constructor(texture) {
 		super(texture);
 
-		this.damage = 15;
 		this.speed = 25;
-		this.life = 56;
+		this.maxLife = 56;
+
+		this.item.damage = 15;
 	}
 
 	SetCollider(x, y, radius) {
@@ -104,9 +99,10 @@ class PArrow extends Projectile {
 	constructor(texture) {
 		super(texture);
 
-		this.damage = 8;
 		this.speed = 25;
-		this.life = 47;
+		this.maxLife = 47;
+
+		this.item.damage = 8;
 	}
 
 	setCollider(x, y, radius) {

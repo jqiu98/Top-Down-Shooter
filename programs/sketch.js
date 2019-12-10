@@ -1,35 +1,32 @@
 
-let gameLevels;
-let currentLevel;
-
-let player;
-
-let tileTexture, floor1, floor2, wall1, wall2;
-
-let GRAVITY = 1.3;
-
-let playerSprite;
-
-let gameStart;
-let settingMenu;
-
-let menu;
-let selection;
-
+let floor1, floor2, wall1, wall2;
 let robot, mage, archer;
 let robotPic, magePic, archerPic;
+let laser, magic, arrow;
+let warrior;
 
 let scenes;
 let currentScene;
+let menu;
+let selection;
+let gameLevels;
+let currentLevel;
 
 let allClassLabels;
 let allAnimations;
 let allProjectiles;
+let allEnemies;
+let floorGroup, wallGroup, enemyGroup;
 
-let laser, magic, arrow;
+let gameStart;
+let gameOver;
+let gameWin;
 
-let floors, walls;
+let player;
 
+let spawnPositions;
+let lastSpawn;
+let MAX_ENEMIES;
 
 function preload() {
     floor1 = loadImage('floor1.png');
@@ -63,7 +60,14 @@ function preload() {
 
     laser = loadImage('laser.png');
     magic = loadImage('magic.png');
-    arrow = loadImage('arrow3.png');
+    arrow = loadImage('arrow.png');
+
+
+    warrior = [ 
+                loadAnimation('warrior/warrior_down001.png', 'warrior/warrior_down003.png'),
+                loadAnimation('warrior/warrior_left001.png', 'warrior/warrior_left003.png'),
+                loadAnimation('warrior/warrior_right001.png', 'warrior/warrior_right003.png'),
+                loadAnimation('warrior/warrior_up001.png', 'warrior/warrior_up003.png')]
 }
 
 function setup() {
@@ -72,20 +76,32 @@ function setup() {
     textAlign(CENTER, CENTER);
     angleMode(DEGREES);
 
-    floors = new Group();
-    walls = new Group();
+    floorGroup = new Group();
+    wallGroup = new Group();
+    enemyGroup = new Group();
 
     loadLevel(LEVEL1_WIDTH, LEVEL1_HEIGHT, LEVEL1_DATA);
-    // currentLevel = ;
 
     gameStart = false;
-    settingMenu = false;
+    gameOver = false;
+    gameWin = false;
+    MAX_ENEMIES = 20;
 
-    // player = new Player(robot);
 
     allClassLabels = ['robot', 'mage', 'archer'];
     allAnimations = [robot, mage, archer];
     allProjectiles = [laser, magic, arrow];
+    allEnemies = [];
+
+    let centerX = (LEVEL1_WIDTH - 1)*64/2;
+    let centerY = (LEVEL1_HEIGHT - 1)*64/2;
+
+    spawnPositions = [
+                        [centerX, centerY],
+                        [256,centerY],
+                        [centerX*2 -256, centerY],
+                        [centerX, 256],
+                        [centerX, centerY*2 - 256]];
 
     menu = new MainMenu();
     selection = new CharacterSelection();
@@ -104,18 +120,35 @@ function draw() {
     else if (currentScene === "start") InitializePlayer();
     else runScene();
 
-    push();
-    noFill();
-    strokeWeight(25);
-    if (!gameStart) rect(width/2, height/2, width+5, height+5);
-    pop();
+    if (!gameStart) {
+        push();
+        noFill();
+        strokeWeight(25);
+        rect(width/2, height/2, width+5, height+5);
+        pop();
+    }
 
+    if (gameWin) {
+        push();
+        fill(0, 0, 255);
+        textSize(200);
+        textStyle(BOLD);
+        text("Y O U  W O N !", player.entity.position.x, player.entity.position.y, width/0.5, height/0.5);
+    }
+    else if (gameOver) {
+        push();
+        fill(0, 0, 255);
+        textSize(200);
+        textStyle(BOLD);
+        text("G A M E  O V E R !", player.entity.position.x, player.entity.position.y, width/0.5, height/0.5);
+    }
 }
 
 function InitializePlayer() {
-    player.entity.position.x = 8*64;
-    player.entity.position.y = 8*64;
+    player.entity.position.x = (LEVEL1_WIDTH - 1)*64/2;
+    player.entity.position.y = (LEVEL1_HEIGHT - 1)*64/2;
     gameStart = true;
+    lastSpawn = millis();
 }
 
 function runScene() {
@@ -124,29 +157,88 @@ function runScene() {
 
 
 function runLevel() {
+    camera.position.x = player.entity.position.x;
+    camera.position.y = player.entity.position.y;
+
     push();
     fill(160, 0, 0);
-    rect(1280, 960, 2560, 1920);
+    rect((LEVEL1_WIDTH-1)*64/2, (LEVEL1_HEIGHT-1)*64/2, (LEVEL1_WIDTH-1)*64, (LEVEL1_HEIGHT-1)*64);
     pop();
 
-    drawSprites(floors);
-    drawSprites(walls);
-    player.entity.collide(walls);
-    player.projectileGroup.collide(walls, ReduceLife);
+    drawSprites(floorGroup);
+    drawSprites(wallGroup);
+
+    for (let spot of spawnPositions) {
+        fill(0, 255, 0);
+        ellipse(spot[0], spot[1], 20, 20);
+    }
+
+    SpawnenemyGroup();
+
+    player.entity.collide(wallGroup);
+    player.projectileGroup.collide(wallGroup, Deactivate);
+    player.entity.collide(enemyGroup, PlayerEnemyCollide);
+
+    enemyGroup.collide(wallGroup);
+    enemyGroup.overlap(player.projectileGroup, EntityProjectileCollide);
+
+    for (let anEnemy of allEnemies) {
+        anEnemy.projectileGroup.collide(wallGroup, Deactivate);
+        player.entity.overlap(anEnemy.projectileGroup, EntityProjectileCollide);
+        anEnemy.Run();
+    }
 
     player.Run();
 
-    camera.position.x = player.entity.position.x;
-    camera.position.y = player.entity.position.y;
+    CheckWinCondition();
+
 }
 
-function ReduceLife(SpriteA, SpriteB) {
-    console.log(SpriteA);
-    SpriteA.life = 2;
+function CheckWinCondition() {
+    if (allEnemies.length !== MAX_ENEMIES) return;
+    for (let enemy of enemyGroup) {
+        if (!enemy.removed) return
+    }
+    gameWin = true;
+    gameOver = true;
+}
+
+function SpawnenemyGroup() {
+    let currSpawn = millis();
+    if  (currSpawn - lastSpawn > 2500 && allEnemies.length < MAX_ENEMIES) {
+        lastSpawn = currSpawn;
+        let spawnSpot = spawnPositions[int(random(0, spawnPositions.length))];
+        console.log(spawnSpot);
+        let enemy = new Enemy(warrior, magic, 0, spawnSpot[0], spawnSpot[1]);
+        enemyGroup.add(enemy.entity);
+        allEnemies.push(enemy);
+    }
+}
+
+function PlayerEnemyCollide(pEntity, eEntity) {
+    pEntity.health -= eEntity.damage;
+    if (pEntity.health < 1) gameOver = true;
+    pEntity.position.add(eEntity.velocity.copy().setMag(25));
+    eEntity.position.sub(eEntity.velocity.copy().setMag(25));
+}
+
+function EntityProjectileCollide(anEntity, projectile) {
+    anEntity.health -= projectile.damage;
+    if (anEntity.health < 1) CheckStatus(anEntity);
+    Deactivate(projectile, 0);
+}
+
+function CheckStatus(anEntity) {
+    if (player.health < 1) gameOver = true;
+    else anEntity.remove();
+}
+
+function Deactivate(SpriteA, SpriteB) {
     SpriteA.velocity.x = 0;
     SpriteA.velocity.y = 0;
     SpriteA.position.x = 3000;
     SpriteA.position.y = 3000;
+    SpriteA.deactivate = true;
 }
 
 
@@ -160,20 +252,20 @@ function loadLevel (levelWidth, levelHeight, levelData) {
 
             switch (levelData[index]) {
                 case 1:
-                    tile.addImage(floor2);
-                    floors.add(tile);
-                    break;
-                case 2:
                     tile.addImage(floor1);
-                    floors.add(tile);
+                    floorGroup.add(tile);
                     break;
+                // case 2:
+                //     tile.addImage(floor2);
+                //     floorGroup.add(tile);
+                //     break;
                 case 3:
                     tile.addImage(wall1);
-                    walls.add(tile);
+                    wallGroup.add(tile);
                     break;
                 case 4:
                     tile.addImage(wall2);
-                    walls.add(tile);
+                    wallGroup.add(tile);
                     break;
             }
         }

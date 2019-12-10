@@ -1,10 +1,12 @@
 class MainMenu {
 	constructor() {
-		this.storyMode = createSprite(width/2, height/4, 200, 50);
+		this.storyMode = createSprite(width/2, height/3, 200, 50);
 		this.storyMode.shapeColor = color(0, 255, 0);
 
-		this.versusMode = createSprite(width/2, height/4 + 100, 200, 50);
+		this.versusMode = createSprite(width/2, height/3 + 100, 200, 50);
 		this.versusMode.shapeColor = color(180);
+
+		this.msgDisplay = false;
 
 		this.start = false;
 		this.options = [this.storyMode, this.versusMode];
@@ -75,14 +77,36 @@ class MainMenu {
 				currentScene = "selection";
 				break;
 			case this.versusMode:
-				this.start = true;
-				currentScene = "versus";
+				this.msgDisplay = true;
 				break;
 		}
+	}
+
+	DisplayMessage() {
+		if (this.msgDisplay) {
+			push();
+			fill(255, 0, 0);
+			text("Currently unavailable: Check back in the future!",
+				this.versusMode.position.x,
+				this.versusMode.position.y + this.versusMode.height/2 + 20,
+				width,
+				50);
+			pop();
+		}
+	}
+
+	DisplayTitle() {
+		push();
+		textSize(40);
+		textStyle(BOLD);
+		text("SELECT A MODE", width/2, height/8, width, 40);
+		pop();
 	}
 
 	Display() {
 		this.DrawStoryMode();
 		this.DrawVersusMode();
+		this.DisplayTitle();
+		this.DisplayMessage();
 	}
 }

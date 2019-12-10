@@ -1,5 +1,5 @@
 class Entity {
-	constructor(anims, projectileTexture, projRadius, x = 64, y = 7*64) {
+	constructor(anims, projectileTexture, projRadius, x, y) {
 		this.entity = createSprite(x, y);
 		
 		this.entity.addAnimation('walk_down', anims[0]);
@@ -11,9 +11,7 @@ class Entity {
 
 		this.entity.collider = this.entity.getBoundingBox();
 
-		this.health = 100;
-		this.speed = 9;
-		this.damage = 5;
+		this.entity.health = 100;
 
 		this.pVelocity = createVector(0,5);
 		this.pRotation = 0;
@@ -46,7 +44,6 @@ class Entity {
 
 			aProjectile.SetAlive();
 		}
-		else if (aProjectile.GetLife() === aProjectile.life) aProjectile.isActive = false;
 		this.projectileIndex = (this.projectileIndex + 1) % this.MAXPROJECTILE;
 
 	}
@@ -95,7 +92,7 @@ class Entity {
 
 		push();
 		fill("#ff8000");
-		ellipse(this.entity.position.x + aim.x, this.entity.position.y + aim.y, 5);
+		ellipse(this.entity.position.x + aim.x, this.entity.position.y + aim.y, 7);
 		pop();
 	}
 
@@ -114,7 +111,8 @@ class Entity {
 		noFill();
 		rect(this.entity.position.x-32, this.entity.position.y-42.5, 64, 4, 30);
 
-		let currHealth = map(this.health, 0, 100, 0, 64);
+		let currHealth = map(this.entity.health, 0, 100, 0, 64);
+		if (currHealth < 0) currHealth = 0;
 		fill(0, 255, 0);
 		noStroke();
 		rect(this.entity.position.x-32, this.entity.position.y-42.5, currHealth, 4, 30);
@@ -123,9 +121,11 @@ class Entity {
 
 
 	Display() {
-		drawSprite(this.entity);
-		this.DisplayAim();
-		this.DisplayProjectiles();
-		this.DisplayHealth();
+		if (!this.entity.removed) {
+			drawSprite(this.entity);
+			this.DisplayAim();
+			this.DisplayProjectiles();
+			this.DisplayHealth();
+		}
 	}
 }

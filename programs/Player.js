@@ -1,6 +1,8 @@
 class Player extends Entity {
-	constructor(anims, projectileTexture, projRadius, x = 64, y = 7*64) {
+	constructor(anims, projectileTexture, projRadius, x, y) {
 		super(anims, projectileTexture, projRadius, x, y);
+
+		this.speed = 9;
 
 		this.lastShot = 0;
 		this.shootThreshold;
@@ -12,41 +14,40 @@ class Player extends Entity {
 	}
 
 	ProcessInputs() {
-		this.entity.velocity.x = 0;
-		this.entity.velocity.y = 0;
+		this.entity.velocity.mult(0);
+		if (!gameOver) {
+			if (keyDown(LEFT_ARROW)) {
+				this.entity.velocity.x = -this.speed;
+				this.entity.changeAnimation('walk_left');
+			}
 
+			if (keyDown(RIGHT_ARROW)) {
+				this.entity.velocity.x = this.speed;
+				this.entity.changeAnimation('walk_right');
+			}
 
-		if (keyDown(LEFT_ARROW)) {
-			this.entity.velocity.x = -this.speed;
-			this.entity.changeAnimation('walk_left');
+			if(keyDown(UP_ARROW)) {
+				this.entity.velocity.y = -this.speed;
+				this.entity.changeAnimation('walk_up');
+			}
+
+			if (keyDown(DOWN_ARROW)) {
+				this.entity.velocity.y = this.speed;
+				if (this.entity.velocity.x === 0) this.entity.changeAnimation('walk_down');
+			}
+
+			if (this.entity.velocity.mag() === 0) {
+				this.entity.animation.changeFrame(1);
+			}
+			else {
+				this.entity.velocity.limit(this.speed);
+			}
+
+			if (keyDown(SHIFT)) this.Shoot();
+
+		    if(mouseIsPressed) camera.zoom = 0.1;
+		    else camera.zoom = 0.5;
 		}
-
-		if (keyDown(RIGHT_ARROW)) {
-			this.entity.velocity.x = this.speed;
-			this.entity.changeAnimation('walk_right');
-		}
-
-		if(keyDown(UP_ARROW)) {
-			this.entity.velocity.y = -this.speed;
-			this.entity.changeAnimation('walk_up');
-		}
-
-		if (keyDown(DOWN_ARROW)) {
-			this.entity.velocity.y = this.speed;
-			if (this.entity.velocity.x === 0) this.entity.changeAnimation('walk_down');
-		}
-
-		if (this.entity.velocity.mag() === 0) {
-			this.entity.animation.changeFrame(1);
-		}
-		else {
-			this.entity.velocity.limit(this.speed);
-		}
-
-		if (keyDown(SHIFT)) this.Shoot();
-
-	    if(mouseIsPressed) camera.zoom = 0.1;
-	    else camera.zoom = 0.5;
 	}
 
 	Shoot() {
@@ -59,7 +60,7 @@ class Player extends Entity {
 }
 
 class Robot extends Player {
-	constructor(anims, projectileTexture, x = 64, y = 7*64) {
+	constructor(anims, projectileTexture, x, y) {
 		super(anims, projectileTexture, 3, x, y);
 
 		this.MAXPROJECTILE = 7;
@@ -78,7 +79,7 @@ class Robot extends Player {
 }
 
 class Mage extends Player {
-	constructor(anims, projectileTexture, x = 64, y = 7*64) {
+	constructor(anims, projectileTexture,x, y) {
 		super(anims, projectileTexture, 0, x, y);
 
 		this.MAXPROJECTILE = 5;
@@ -99,7 +100,7 @@ class Mage extends Player {
 
 
 class Archer extends Player {
-	constructor(anims, projectileTexture, x = 64, y = 7*64) {
+	constructor(anims, projectileTexture, x, y) {
 		super(anims, projectileTexture, 1, x, y);
 
 		this.MAXPROJECTILE = 4;
