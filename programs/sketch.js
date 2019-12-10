@@ -27,6 +27,9 @@ let allAnimations;
 let selectedClassLabel;
 let selectedClassAnim;
 
+let laser;
+
+
 function preload() {
     tileTexture = loadImage('groundTile.png');
 
@@ -51,6 +54,8 @@ function preload() {
     warriorPic = loadImage('warrior/warrior_pic.png');
     magePic = loadImage('mage/mage_pic.png');
     archerPic = loadImage('archer/archer_pic.png');
+
+    laser = loadImage('laser.png');
 }
 
 function setup() {
@@ -97,7 +102,7 @@ function draw() {
 }
 
 function InitializePlayer() {
-    player = new Player(selectedClassAnim);
+    player = new Player(selectedClassAnim, laser, 64, 7*64);
     gameStart = true;
 }
 
@@ -108,18 +113,18 @@ function runScene() {
 
 function runLevel() {
     drawSprites(currentLevel);
-    player.player.collide(currentLevel);
+    player.entity.collide(currentLevel);
 
     player.Run();
 
-    camera.position.x = player.player.position.x;
-    camera.position.y = player.player.position.y;
+    camera.position.x = player.entity.position.x;
+    camera.position.y = player.entity.position.y;
 }
 
 
 // function UpdateGravity() {
-//     if (player.player.touching.bottom) player.player.velocity.y = 0;
-//     if (player.player.touching.top) player.player.velocity.y = 0;
+//     if (player.entity.touching.bottom) player.entity.velocity.y = 0;
+//     if (player.entity.touching.top) player.entity.velocity.y = 0;
 // }
 
 
