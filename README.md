@@ -1,4 +1,3 @@
-# Creative-Coding-Final   
 This is a 2D Shooter with keyboard only interactions. Game consist of 3 scenes: Menu => Character Select => Level
 
     Menu: Select the mode to play: Story/Versus
